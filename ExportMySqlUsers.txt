@@ -1,0 +1,41 @@
+###########################################################################################
+#### Exporting Users and priveleges from the source database:
+# Log onto the server with the source database.
+# Open a Command Prompt.
+
+# Change directory to the mysql.exe
+CD "C:\Program Files\MySQL\MySQL Server 5.5\bin"
+
+# run this command to log into the server as root and export the query below to users.txt
+mysql -uroot -N -p -s > GetUsers.txt
+
+# At the "Enter password:" prompt, enter the root password and hit Enter
+
+
+# There will not be another prompt. It will be waiting for you to type this query and hit Enter:
+SELECT Distinct CONCAT('show grants for `', user, '`@`', host, '`;') as query from mysql.user;
+
+# Again, there will not be another prompt. Type this command and hit Enter
+quit
+
+# Type this new command. It will use the users textfile and build a new file called ImportUsers.txt 
+#	that will have commands to create the users and assign permissions on the new server
+mysql -uroot -N -p -s -r < GetUsers.txt > ImportUsers.txt
+
+# At the "Enter password:" prompt, enter the root password and hit Enter
+# This command will quit automatically.  You are done on the source server
+
+
+###########################################################################################
+#### Importing Users and priveleges into the destination database:
+# Copy the ImportUsers.txt file to the destination server, in the same directory as mysql.exe
+# Open a Command Prompt
+
+# Change directory to the mysql.exe
+CD "C:\Program Files\MySQL\MySQL Server 5.5\bin"
+
+# run this command to log into the server as root and import the users
+mysql -uroot -p < ImportUsers.txt
+
+# At the "Enter password:" prompt, enter the root password and hit Enter
+# This command will quit automatically.  You are done on the source server

@@ -1,0 +1,7 @@
+------------------------------------------------------
+--C.S. KPI's						Goal
+--# BDR Tickets						<=3/wk			
+--Missing Patch %					<= 5%			
+--# Missing hosted A/V				0			
+--# Not on latest A/V Definitions	<=10
+------------------------------------------------------			
