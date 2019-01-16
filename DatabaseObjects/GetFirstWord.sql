@@ -8,6 +8,7 @@ BEGIN
         WHEN 0 THEN @value
         ELSE SUBSTRING(@value, 1, CHARINDEX(' ', @value, 1) - 1) END
 END
+go
 
 CREATE FUNCTION [dbo].[GetSecondWord] (@value varchar(max))
 RETURNS varchar(max)
@@ -17,5 +18,5 @@ BEGIN
 
     RETURN LTRIM(SUBSTRING(@value,CHARINDEX(' ',@value), CHARINDEX(' ',LTRIM(SUBSTRING(@value,CHARINDEX(' ',@value),LEN(@value)-CHARINDEX(' ',@value)))) ))
 END
-
+go
 
