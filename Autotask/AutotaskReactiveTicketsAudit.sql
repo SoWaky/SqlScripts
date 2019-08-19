@@ -104,7 +104,7 @@ deallocate csrUpdates
 END
 ELSE
 BEGIN
-	SET @EmailBody = 'There were no Support tickets closed today that are missing important information :)'
+	SET @EmailBody = 'There were no Support tickets closed yesterday that are missing important information :)'
 END
 
 PRINT @EmailBody

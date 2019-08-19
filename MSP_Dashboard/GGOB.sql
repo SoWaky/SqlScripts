@@ -18,6 +18,10 @@ exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,10
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,11
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,12
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,1
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,2
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,3
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,4
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,5
 -----------------------------------------------------------------------
 
 begin tran
@@ -29,13 +33,46 @@ commit
 --select * FROM MSP_Dashboard.dbo.vw_CompanyStatsByMonth MSP where StatsYear = 2017 and statsmonth = 22 order by 5
 
 SELECT * FROM MSP_Dashboard.dbo.vw_CompanyStatsLast30Days order by (num_endpoints - num_seats)
-select * FROM MSP_Dashboard.dbo.vw_CompanyStatsByMonth MSP where StatsYear = 2018 and statsmonth = 8 order by 4,5
+select * FROM MSP_Dashboard.dbo.vw_CompanyStatsByMonth MSP where StatsYear = 2019 and statsmonth = 4 order by 4,5
 select * from MSP_Dashboard.dbo.vw_StatsByMonth order by 1,2
 select * from MSP_Dashboard.dbo.vw_StatsByMonthManagedClients order by 1,2
 select * from MSP_Dashboard.dbo.vw_StatsByMonthModularClients order by 1,2
 select * from MSP_Dashboard.dbo.vw_StatsByQuarter order by 1,2
 SELECT * FROM MSP_Dashboard.dbo.vw_CompanyStatsByMonth order by 2,3,4,5
 SELECT * FROM MSP_Dashboard.dbo.vw_CompanyStatsByQuarter order by 2,3,4,5
+
+select * from MSP_Dashboard.dbo.vw_StatsLast30DaysManagedClients -- MRR
+select * from MSP_Dashboard.dbo.vw_StatsLast30DaysModularClients -- ORR
+
+--------------------
+-- Rename a company because it was renamed in Autotask
+
+select distinct Company_Name from CompanyStatsByMonth
+select * from CompanyStatsByMonth where company_name like '%foot%'
+--delete from CompanyStatsByMonth where CompanyStatsByMonth_Id = 1374
+
+update CompanyStatsByMonth set company_name = 'ICC Group' where company_name = 'IL Constructors Corporation'
+update CompanyStatsByMonth set ORR_Amount = 0 where company_name = 'Foot First Podiatry Centers' 
+
+
+SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, DATEDIFF(dd, Ticket.Create_Time, GETDATE()) as Age--, *
+into #CS
+	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
+	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
+		ON Account.account_id = Ticket.account_id
+	LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent
+		ON Parent.account_id = Account.parent_account_id
+	INNER JOIN Autotask.TF_511394_WH.dbo.wh_queue Board
+		ON Board.queue_id = Ticket.ticket_queue_id
+	WHERE 1=1
+		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
+		AND Board.queue_name like '05%'		-- Protective Services
+		AND Ticket.Date_Completed IS NULL
+		AND COALESCE(Parent.Account_Name, Account.Account_Name) <> 'WEBIT Services'
+	ORDER BY 1
+
+SELECT COUNT(*) as NumTickets, SUM(Age) as TotalDays, (SUM(Age) / COUNT(*)) As AvgDays
+	FROM #CS
 
 --------------------------------------------------------------------------------------
 -- Patching stats for GGOB

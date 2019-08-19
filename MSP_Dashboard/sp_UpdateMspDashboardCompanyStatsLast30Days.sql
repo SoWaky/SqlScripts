@@ -52,9 +52,10 @@ DELETE FROM MSP_Dashboard.dbo.CompanyStatsLast30Days
 -- Load the table with all active companies that have a Managed Services agreement
 PRINT 'Inserting records for the month'
 
-INSERT INTO MSP_Dashboard.dbo.CompanyStatsLast30Days (Company_Type, Company_Name, Num_Seats_Agreement)		
+INSERT INTO MSP_Dashboard.dbo.CompanyStatsLast30Days (Company_Type, Company_Name, Num_Seats_Agreement, Num_Annual_NA_Visits)		
 	SELECT DISTINCT wh_key_account_icon.key_account_icon_name AS Company_Type, COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name
 				, COALESCE(AccountUDf.Seats_as_numeric, 0) AS Num_Seats_Agreement
+				, COALESCE(AccountUDf.NA_Visits_per_Year_as_numeric, 0) AS Num_Annual_NA_Visits
 		FROM Autotask.TF_511394_WH.dbo.wh_account Account
 		LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account_udf AccountUDf
 			ON Account.account_id = AccountUDf.account_id
@@ -128,34 +129,28 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 			, Update_Date_Time = GETDATE()
 	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (
-		SELECT Company_Name, SUM(Contract_Price_Monthly) AS Contract_Price, Start_Date, End_Date
-			FROM (
-					SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, contract.start_date, contract.end_date
-							, COALESCE((SELECT SUM(p.contract_period_price)
-												FROM Autotask.TF_511394_WH.dbo.wh_contract_service CS WITH (NOLOCK)
-												INNER JOIN Autotask.TF_511394_WH.dbo.wh_service S WITH (NOLOCK)
-													ON CS.Service_Id = S.Service_Id
-												INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_service_period p WITH (NOLOCK)
-													ON CS.Contract_Service_Id = p.Contract_Service_Id
-													AND @EndDate BETWEEN p.contract_period_date and p.contract_period_end_date
-												WHERE CS.contract_id = contract.contract_id
-													AND S.Allocation_Code_ID IN (29683491, 29682901)	-- "Modular Services", "MRR - Monthly Recurring Revenue~IT Service Agreements"
-											), 0) AS Contract_Price_Monthly
-						FROM Autotask.TF_511394_WH.dbo.wh_contract [contract] WITH (NOLOCK)
-						INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_category category WITH (NOLOCK)
-							ON contract.contract_category_id = category.contract_category_id	
-						INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account WITH (NOLOCK)
-							ON Account.account_id = contract.account_id
-						INNER JOIN Autotask.TF_511394_WH.dbo.wh_key_account_icon wh_key_account_icon WITH (NOLOCK)
-							ON wh_key_account_icon.key_account_icon_id = Account.key_account_icon_id
-						LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent WITH (NOLOCK)
-							ON Parent.account_id = Account.parent_account_id
-						WHERE contract.is_active = 1
-							AND @EndDate BETWEEN contract.start_date and contract.end_date
-							AND LEFT(category.contract_category_name, 16) in ('Managed Services', 'Other Recurring ')
-						--GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name), contract.contract_id, contract.start_date, contract.end_date
-				) x
-			GROUP BY Company_Name, Start_Date, End_Date
+		SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, C.start_date, C.end_date, SUM(P.Contract_Period_Price) AS Contract_Price
+			FROM Autotask.TF_511394_WH.dbo.wh_contract C WITH (NOLOCK)
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_service CS WITH (NOLOCK)
+				ON CS.contract_id = C.contract_id
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_service S WITH (NOLOCK)
+				ON CS.Service_Id = S.Service_Id
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_service_period p WITH (NOLOCK)
+				ON CS.Contract_Service_Id = p.Contract_Service_Id
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_category category WITH (NOLOCK)
+				ON C.contract_category_id = category.contract_category_id	
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account WITH (NOLOCK)
+				ON Account.account_id = C.account_id
+			INNER JOIN Autotask.TF_511394_WH.dbo.wh_key_account_icon wh_key_account_icon WITH (NOLOCK)
+				ON wh_key_account_icon.key_account_icon_id = Account.key_account_icon_id
+			LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent WITH (NOLOCK)
+				ON Parent.account_id = Account.parent_account_id
+			WHERE C.is_active = 1
+				AND S.Active = 1
+				AND @EndDate BETWEEN C.start_date and C.end_date
+				AND @EndDate BETWEEN p.contract_period_date and p.contract_period_end_date
+				AND LEFT(category.contract_category_name, 16) in ('Managed Services', 'Other Recurring ')
+			GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name), C.start_date, C.end_date
 	) Upd ON Upd.Company_Name = MRR.Company_Name
 
 

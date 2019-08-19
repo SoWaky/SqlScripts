@@ -11,7 +11,7 @@ select distinct tab.Name AS Table_Nm
 	--, col.IsNullable as Allow_Null_Ind
 	, 'SELECT top 3 ''' + RTRIM(tab.name) + ''' as Table_Name, * from [' + tab.name + ']'
 	, 'DELETE FROM ' + RTRIM(tab.name)
-	--, 'SELECT  ''' + RTRIM(tab.name) + ''' as Table_Name, count(*) as numrecs from [' + tab.name + '] WITH (NOLOCK)'
+	, 'SELECT  ''' + RTRIM(tab.name) + ''' as Table_Name, count(*) as numrecs from [' + tab.name + '] WITH (NOLOCK)'
 	--	+ case when db_name() like 'MFG%' THEN '  order by progress_recid desc' else '' END as GetRecs
 	--, 'UPDATE ' + tab.name + ' set ' + col.name + ' = 2 where ' + col.name + ' = 46 ' as UpdateRecs
 	FROM sysobjects tab
@@ -20,10 +20,10 @@ select distinct tab.Name AS Table_Nm
 	WHERE 1=1
 		AND tab.type IN ('U','V')  -- 'U' for User Table, 'V' for View
 		and tab.name not like 'im%'
-		and tab.name not like 'vw_%'
+		--and tab.name  like 'vw_%'
 		--and tab.name <> 'whsebin'
 		--AND tab.name like '%programid%'
-		--AND col.name like '%household%'
+		AND col.name like '%import%'
 	order by 1,2
 
 ----- Find Identity Columns

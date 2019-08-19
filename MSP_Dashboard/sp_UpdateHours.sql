@@ -1,5 +1,5 @@
 -- TF_511394_WH database
-
+-- select * from HoursByWeek where full_name = 'Ortega, Omar'
 -- exec sp_UpdateHours
 
 USE MSP_Dashboard
@@ -57,17 +57,7 @@ INSERT INTO HoursByWeek (FirstDayOfWeek, Full_Name, Task_Number, Board, WorkRole
 			on project.project_id = task.project_id
 		where 1=1
 			and s.date_worked >=  @StartDate
-			and u.full_name in ('Alfini, Ron'
-								,'Hoffman, Michael'
-								,'LeBaron, Ann'
-								,'Ortega, Omar'
-								,'Price, Matthew'
-								,'Robak, Shawn'
-								,'Scannell, Matthew'
-								,'Sowa, Scott'
-								,'Sullivan, Chad'
-								,'Zuidema, Eric')
-
+			and u.full_name <> 'Valentine, Ross'
 		GROUP BY DATEADD(day, -1, DATEADD(week, datepart(week, s.date_worked) - 1, DATEADD(yy, datepart(year, s.date_worked) - 1900, 0))) 
 		, u.Full_Name
 		, task.Task_Number
