@@ -5,23 +5,18 @@ GO
 exec sp_UpdateMspDashboardCompanyStatsByMonth 
 exec sp_UpdateMspDashboardCompanyStatsLast30Days
 
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,1
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,2
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,3
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,4
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,5
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,6
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,7
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,8
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,8
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,10
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,11
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2018,12
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,1
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,2
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,3
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,4
-exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,5
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,1
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,2
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,3
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,4
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,5
+--exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,6
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,7
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,8
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,9
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,10
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,11
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,12
 -----------------------------------------------------------------------
 
 begin tran

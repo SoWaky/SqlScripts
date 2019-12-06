@@ -53,7 +53,7 @@ DELETE FROM MSP_Dashboard.dbo.CompanyStatsLast30Days
 PRINT 'Inserting records for the month'
 
 INSERT INTO MSP_Dashboard.dbo.CompanyStatsLast30Days (Company_Type, Company_Name, Num_Seats_Agreement, Num_Annual_NA_Visits)		
-	SELECT DISTINCT wh_key_account_icon.key_account_icon_name AS Company_Type, COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name
+	SELECT DISTINCT wh_key_account_icon.key_account_icon_name AS Company_Type, Account.Account_Name AS Company_Name
 				, COALESCE(AccountUDf.Seats_as_numeric, 0) AS Num_Seats_Agreement
 				, COALESCE(AccountUDf.NA_Visits_per_Year_as_numeric, 0) AS Num_Annual_NA_Visits
 		FROM Autotask.TF_511394_WH.dbo.wh_account Account
@@ -80,7 +80,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Seats = Upd.Num_Seats, Update_Date_Time = GETDATE()
 	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (			
-			SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name
+			SELECT Account.Account_Name AS Company_Name
 					, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP') THEN 1.00
 									WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT30)' THEN 0.50
 									WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT15)' THEN 0.25
@@ -96,7 +96,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 						and Account.is_active = 1
 						and Contact.is_active = 1
 						and Account.key_account_icon_id in (201, 200, 204)	-- 10, 15, 95 clients
-				GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+				GROUP BY Account.Account_Name
 	) Upd ON Upd.Company_Name = MRR.Company_Name
 
 ---------------------------------------------------
@@ -106,7 +106,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Endpoints = Upd.Num_Endpoints, Update_Date_Time = GETDATE()
 	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (			
-			SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, COUNT(*) as Num_Endpoints
+			SELECT Account.Account_Name AS Company_Name, COUNT(*) as Num_Endpoints
 				FROM Autotask.TF_511394_WH.dbo.wh_installed_product InstalledProduct
 				LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Account
 					ON Account.account_id = InstalledProduct.account_id
@@ -116,7 +116,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 					AND Account.is_active = 1
 					AND InstalledProduct.is_active = 1
 					AND InstalledProduct.aem_device_id is not null
-				GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+				GROUP BY Account.Account_Name
 	) Upd ON Upd.Company_Name = MRR.Company_Name
 
 ---------------------------------------------------
@@ -129,7 +129,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 			, Update_Date_Time = GETDATE()
 	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (
-		SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, C.start_date, C.end_date, SUM(P.Contract_Period_Price) AS Contract_Price
+		SELECT Account.Account_Name AS Company_Name, C.start_date, C.end_date, SUM(P.Contract_Period_Price) AS Contract_Price
 			FROM Autotask.TF_511394_WH.dbo.wh_contract C WITH (NOLOCK)
 			INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_service CS WITH (NOLOCK)
 				ON CS.contract_id = C.contract_id
@@ -150,7 +150,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 				AND @EndDate BETWEEN C.start_date and C.end_date
 				AND @EndDate BETWEEN p.contract_period_date and p.contract_period_end_date
 				AND LEFT(category.contract_category_name, 16) in ('Managed Services', 'Other Recurring ')
-			GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name), C.start_date, C.end_date
+			GROUP BY Account.Account_Name, C.start_date, C.end_date
 	) Upd ON Upd.Company_Name = MRR.Company_Name
 
 
@@ -158,7 +158,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 -- Get Reactive ticket info
 PRINT 'Updating Num_Reactive_Tickets_Opened'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  count(*) as Num_Reactive_Tickets_Opened
+SELECT Account.Account_Name AS Company_Name,  count(*) as Num_Reactive_Tickets_Opened
 	INTO #AT1
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -172,7 +172,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  cou
 		AND Ticket.Create_Time between @StartDate AND @EndDate
 		AND (Board.queue_name like '01%' OR Board.queue_name like '00%')
 		AND Ticket.Total_Worked_Hours > 0
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Tickets_Opened = COALESCE(AT.Num_Reactive_Tickets_Opened, 0)
@@ -186,7 +186,7 @@ DROP TABLE #AT1
 
 PRINT 'Updating Num_Reactive_Tickets_Closed'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  count(*) as Num_Reactive_Tickets_Closed
+SELECT Account.Account_Name AS Company_Name,  count(*) as Num_Reactive_Tickets_Closed
 	INTO #AT2
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -200,7 +200,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  cou
 		AND Ticket.Date_Completed between @StartDate AND @EndDate
 		AND (Board.queue_name like '01%' OR Board.queue_name like '00%')
 		AND Ticket.Total_Worked_Hours > 0
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Tickets_Closed = COALESCE(AT.Num_Reactive_Tickets_Closed, 0)
@@ -215,7 +215,7 @@ DROP TABLE #AT2
 
 PRINT 'Updating Num_Reactive_Tickets_Resolved_On_Time'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  count(*) as Num_Reactive_Tickets_Resolved_On_Time
+SELECT Account.Account_Name AS Company_Name,  count(*) as Num_Reactive_Tickets_Resolved_On_Time
 	INTO #AT21
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -230,7 +230,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  cou
 		AND (Board.queue_name like '01%' OR Board.queue_name like '00%')
 		AND Ticket.Total_Worked_Hours > 0
 		AND isnull(Ticket.resolution_actual_time, Ticket.date_completed) < Ticket.due_time	-- Resolved before the Due Date/Time
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Tickets_Resolved_On_Time = COALESCE(AT.Num_Reactive_Tickets_Resolved_On_Time, 0)
@@ -250,7 +250,7 @@ DROP TABLE #AT21
 
 PRINT 'Updating Num_Reactive_Tickets_Same_Day_Response'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, count(*) as Num_Reactive_Tickets_Same_Day_Response
+SELECT Account.Account_Name AS Company_Name, count(*) as Num_Reactive_Tickets_Same_Day_Response
 	INTO #AT3
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -267,7 +267,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, coun
 		AND Board.queue_name like '01%'
 		AND DATEPART(dw, Ticket.Create_Time) BETWEEN 2 AND 6	-- Only count weekdays
 		AND SLA.first_response_elapsed_hours <= 12
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Tickets_Same_Day_Response = COALESCE(AT.Num_Reactive_Tickets_Same_Day_Response, 0)
@@ -281,7 +281,7 @@ DROP TABLE #AT3
 
 PRINT 'Updating Num_Reactive_Tickets_Same_Day_Close'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, count(*) as Num_Reactive_Tickets_Same_Day_Close
+SELECT Account.Account_Name AS Company_Name, count(*) as Num_Reactive_Tickets_Same_Day_Close
 	INTO #AT4
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -298,7 +298,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, coun
 		AND Board.queue_name like '01%'
 		AND DATEPART(dw, Ticket.Create_Time) BETWEEN 2 AND 6	-- Only count weekdays
 		AND SLA.resolution_elapsed_hours <= 12
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Tickets_Same_Day_Close = COALESCE(AT.Num_Reactive_Tickets_Same_Day_Close, 0)
@@ -313,7 +313,7 @@ DROP TABLE #AT4
 
 PRINT 'Updating Num_Reactive_Hours'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, SUM(SubTime.Hours_Worked) as Num_Reactive_Hours
+SELECT Account.Account_Name AS Company_Name, SUM(SubTime.Hours_Worked) as Num_Reactive_Hours
 	INTO #AT5
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -330,7 +330,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, SUM(
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
 		AND (Board.queue_name like '01%' OR Board.queue_name like '00%')
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Hours = COALESCE(AT.Num_Reactive_Hours, 0)
@@ -344,7 +344,7 @@ DROP TABLE #AT5
 
 PRINT 'Updating Num_Reactive_Hours_On_Closed_Tickets'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, SUM(Ticket.Total_Worked_Hours) as Num_Reactive_Hours_On_Closed_Tickets
+SELECT Account.Account_Name AS Company_Name, SUM(Ticket.Total_Worked_Hours) as Num_Reactive_Hours_On_Closed_Tickets
 	INTO #AT11
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -358,7 +358,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, SUM(
 		AND Ticket.Date_Completed between @StartDate AND @EndDate
 		AND (Board.queue_name like '01%' OR Board.queue_name like '00%')
 		AND Ticket.Total_Worked_Hours > 0
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_Reactive_Hours_On_Closed_Tickets = COALESCE(AT.Num_Reactive_Hours_On_Closed_Tickets, 0)
@@ -372,7 +372,7 @@ DROP TABLE #AT11
 
 PRINT 'Updating Num_CS_Hours'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  SUM(SubTime.Hours_Worked) as Num_CS_Hours
+SELECT Account.Account_Name AS Company_Name,  SUM(SubTime.Hours_Worked) as Num_CS_Hours
 	INTO #AT6
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -389,7 +389,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,  SUM
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
 		AND Board.queue_name LIKE '05%'
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 
 
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
@@ -404,7 +404,7 @@ DROP TABLE #AT6
 
 PRINT 'Updating Num_NA_Hours'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_NA_Hours
+SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_NA_Hours
 	INTO #AT7
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -421,7 +421,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SU
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
 		AND Board.queue_name LIKE '04%'
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_NA_Hours = COALESCE(AT.Num_NA_Hours, 0)
@@ -435,7 +435,7 @@ DROP TABLE #AT7
 
 PRINT 'Updating Num_PS_Hours'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_PS_Hours
+SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_PS_Hours
 	INTO #AT8
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -452,7 +452,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SU
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
 		AND (Board.queue_name LIKE '03%' OR Ticket.Project_Id IS NOT NULL)
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_PS_Hours = COALESCE(AT.Num_PS_Hours, 0)
@@ -466,7 +466,7 @@ DROP TABLE #AT8
 
 PRINT 'Updating Num_vCIO_Hours'
 
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_vCIO_Hours
+SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_vCIO_Hours
 	INTO #AT9
 	FROM Autotask.TF_511394_WH.dbo.wh_task Ticket
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
@@ -483,7 +483,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name,   SU
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
 		AND Board.queue_name LIKE '02%'
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	SET Num_vCIO_Hours = COALESCE(AT.Num_vCIO_Hours, 0)
@@ -501,7 +501,7 @@ SELECT AllCompanies.Company_Name, AllCompanies.Total_Endpoints, COALESCE(Missing
 		, 1 - (cast(COALESCE(MissingPatches.Endpoints_Missing_Patches, 0) as decimal(12, 4)) / cast(AllCompanies.Total_Endpoints as decimal(12, 4))) AS Patch_Score
 	INTO #AT10
 	FROM (
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, COUNT(*) as Total_Endpoints
+SELECT Account.Account_Name AS Company_Name, COUNT(*) as Total_Endpoints
 	FROM Autotask.TF_511394_WH.dbo.wh_installed_product InstalledProduct
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
 		ON Account.account_id = InstalledProduct.account_id
@@ -516,10 +516,10 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, COUN
 	WHERE 1=1
 		AND Account.is_active = 1
 		AND InstalledProduct.is_active = 1
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 	) AllCompanies
 	LEFT JOIN (
-SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, COUNT(*) as Endpoints_Missing_Patches
+SELECT Account.Account_Name AS Company_Name, COUNT(*) as Endpoints_Missing_Patches
 	FROM Autotask.TF_511394_WH.dbo.wh_installed_product InstalledProduct
 	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
 		ON Account.account_id = InstalledProduct.account_id
@@ -535,7 +535,7 @@ SELECT COALESCE(Parent.Account_Name, Account.Account_Name) AS Company_Name, COUN
 		AND Account.is_active = 1
 		AND InstalledProduct.is_active = 1
 		AND InstalledProduct.device_audit_missing_patch_count > 0
-	GROUP BY COALESCE(Parent.Account_Name, Account.Account_Name)
+	GROUP BY Account.Account_Name
 	) MissingPatches
 		ON AllCompanies.Company_Name = MissingPatches.Company_Name
 							
