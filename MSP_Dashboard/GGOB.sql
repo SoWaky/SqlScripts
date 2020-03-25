@@ -5,12 +5,12 @@ GO
 exec sp_UpdateMspDashboardCompanyStatsByMonth 
 exec sp_UpdateMspDashboardCompanyStatsLast30Days
 
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,1
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,2
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,3
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,4
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,5
---exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,6
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,1
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,2
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,3
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,4
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,5
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,6
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,7
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,8
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,9

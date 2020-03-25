@@ -22,6 +22,8 @@ SELECT StatsYear
 				ELSE 4 END AS StatsQuarter
 		, Company_Name
 		, Company_Type
+
+		-- Get value as it was at the end of the quarter: Use this logic to get a fixed number from the record for the last month in the quarter
 		, SUM(CASE WHEN (StatsYear < datepart(year, getdate()) AND StatsMonth IN (3,6,9,12))
 						OR (StatsYear = datepart(year, getdate()) AND (datepart(month, getdate()) = 12 AND StatsMonth IN (3,6,9,12)
 																		OR datepart(month, getdate()) = 11 AND StatsMonth IN (3,6,9,11)
@@ -52,6 +54,51 @@ SELECT StatsYear
 																		OR datepart(month, getdate()) = 1 AND StatsMonth = 1)
 							)
 						THEN Num_Endpoints ELSE 0 END) AS Num_Endpoints
+		, SUM(CASE WHEN (StatsYear < datepart(year, getdate()) AND StatsMonth IN (3,6,9,12))
+						OR (StatsYear = datepart(year, getdate()) AND (datepart(month, getdate()) = 12 AND StatsMonth IN (3,6,9,12)
+																		OR datepart(month, getdate()) = 11 AND StatsMonth IN (3,6,9,11)
+																		OR datepart(month, getdate()) = 10 AND StatsMonth IN (3,6,9,10)
+																		OR datepart(month, getdate()) = 9 AND StatsMonth IN (3,6,9)
+																		OR datepart(month, getdate()) = 8 AND StatsMonth IN (3,6,8)
+																		OR datepart(month, getdate()) = 7 AND StatsMonth IN (3,6,7)
+																		OR datepart(month, getdate()) = 6 AND StatsMonth IN (3,6)
+																		OR datepart(month, getdate()) = 5 AND StatsMonth IN (3,5)
+																		OR datepart(month, getdate()) = 4 AND StatsMonth IN (3,4)
+																		OR datepart(month, getdate()) = 3 AND StatsMonth = 3
+																		OR datepart(month, getdate()) = 2 AND StatsMonth = 2
+																		OR datepart(month, getdate()) = 1 AND StatsMonth = 1)
+							)
+						THEN Num_Servers ELSE 0 END) AS Num_Servers
+		, SUM(CASE WHEN (StatsYear < datepart(year, getdate()) AND StatsMonth IN (3,6,9,12))
+						OR (StatsYear = datepart(year, getdate()) AND (datepart(month, getdate()) = 12 AND StatsMonth IN (3,6,9,12)
+																		OR datepart(month, getdate()) = 11 AND StatsMonth IN (3,6,9,11)
+																		OR datepart(month, getdate()) = 10 AND StatsMonth IN (3,6,9,10)
+																		OR datepart(month, getdate()) = 9 AND StatsMonth IN (3,6,9)
+																		OR datepart(month, getdate()) = 8 AND StatsMonth IN (3,6,8)
+																		OR datepart(month, getdate()) = 7 AND StatsMonth IN (3,6,7)
+																		OR datepart(month, getdate()) = 6 AND StatsMonth IN (3,6)
+																		OR datepart(month, getdate()) = 5 AND StatsMonth IN (3,5)
+																		OR datepart(month, getdate()) = 4 AND StatsMonth IN (3,4)
+																		OR datepart(month, getdate()) = 3 AND StatsMonth = 3
+																		OR datepart(month, getdate()) = 2 AND StatsMonth = 2
+																		OR datepart(month, getdate()) = 1 AND StatsMonth = 1)
+							)
+						THEN Num_Workstations ELSE 0 END) AS Num_Workstations
+		, SUM(CASE WHEN (StatsYear < datepart(year, getdate()) AND StatsMonth IN (3,6,9,12))
+						OR (StatsYear = datepart(year, getdate()) AND (datepart(month, getdate()) = 12 AND StatsMonth IN (3,6,9,12)
+																		OR datepart(month, getdate()) = 11 AND StatsMonth IN (3,6,9,11)
+																		OR datepart(month, getdate()) = 10 AND StatsMonth IN (3,6,9,10)
+																		OR datepart(month, getdate()) = 9 AND StatsMonth IN (3,6,9)
+																		OR datepart(month, getdate()) = 8 AND StatsMonth IN (3,6,8)
+																		OR datepart(month, getdate()) = 7 AND StatsMonth IN (3,6,7)
+																		OR datepart(month, getdate()) = 6 AND StatsMonth IN (3,6)
+																		OR datepart(month, getdate()) = 5 AND StatsMonth IN (3,5)
+																		OR datepart(month, getdate()) = 4 AND StatsMonth IN (3,4)
+																		OR datepart(month, getdate()) = 3 AND StatsMonth = 3
+																		OR datepart(month, getdate()) = 2 AND StatsMonth = 2
+																		OR datepart(month, getdate()) = 1 AND StatsMonth = 1)
+							)
+						THEN Num_Other_Devices ELSE 0 END) AS Num_Other_Devices
 		, SUM(CASE WHEN (StatsYear < datepart(year, getdate()) AND StatsMonth IN (3,6,9,12))
 						OR (StatsYear = datepart(year, getdate()) AND (datepart(month, getdate()) = 12 AND StatsMonth IN (3,6,9,12)
 																		OR datepart(month, getdate()) = 11 AND StatsMonth IN (3,6,9,11)
@@ -127,7 +174,6 @@ SELECT StatsYear
 																		OR datepart(month, getdate()) = 1 AND StatsMonth = 1)
 							)
 						THEN AISP_Amount ELSE 0 END) AS AISP_Amount
-		, MAX(Client_Priority_List_Num) AS Client_Priority_List_Num
 		, SUM(Num_Reactive_Tickets_Opened) AS Num_Reactive_Tickets_Opened
 		, SUM(Num_Reactive_Tickets_Closed) AS Num_Reactive_Tickets_Closed
 		, SUM(Num_Reactive_Tickets_Resolved_On_Time) AS Num_Reactive_Tickets_Resolved_On_Time

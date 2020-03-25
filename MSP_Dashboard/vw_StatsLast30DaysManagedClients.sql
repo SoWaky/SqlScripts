@@ -17,6 +17,9 @@ CREATE VIEW dbo.vw_StatsLast30DaysManagedClients
 AS 
 SELECT SUM(Num_Seats) AS Num_Seats
 		, SUM(Num_Endpoints) AS Num_Endpoints
+		, SUM(Num_Servers) AS Num_Servers
+		, SUM(Num_Workstations) AS Num_Workstations
+		, SUM(Num_Other_Devices) AS Num_Other_Devices
 		, SUM(Num_Endpoints_Missing_Patches) AS Num_Endpoints_Missing_Patches
 		, SUM(MRR_Amount) AS MRR_Amount
 		, SUM(ORR_Amount) AS ORR_Amount

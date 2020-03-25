@@ -110,7 +110,7 @@ BEGIN
 		FROM MSP_Dashboard.dbo.CompanyStatsByMonth MRR
 		INNER JOIN (			
 				SELECT Account.Account_Name AS Company_Name
-						, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP') THEN 1.00
+						, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP', 'CL - Finance') THEN 1.00
 										WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT30)' THEN 0.50
 										WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT15)' THEN 0.25
 										ELSE 0 END) AS Num_Seats
@@ -135,15 +135,25 @@ BEGIN
 	---- # Endpoints
 	
 	UPDATE MSP_Dashboard.dbo.CompanyStatsByMonth
-		SET Num_Endpoints = Upd.Num_Endpoints, Update_Date_Time = GETDATE()
+		SET Num_Endpoints = Upd.Num_Endpoints
+			, Num_Servers = Upd.Num_Servers
+			, Num_Workstations = Upd.Num_Workstations
+			, Num_Other_Devices = Upd.Num_Other_Devices
+			, Update_Date_Time = GETDATE()
 		FROM MSP_Dashboard.dbo.CompanyStatsByMonth MRR
 		INNER JOIN (			
-				SELECT Account.Account_Name AS Company_Name, COUNT(*) as Num_Endpoints
+				SELECT Account.Account_Name AS Company_Name
+						, COUNT(*) as Num_Endpoints
+						, SUM(CASE WHEN OS.[Name] LIKE '%Server%' OR OS.[Name] LIKE '%ESXi%' THEN 1 ELSE 0 END) AS Num_Servers
+						, SUM(CASE WHEN OS.[Name] NOT LIKE '%Server%' AND (OS.[Name] LIKE '%Windows%' OR OS.[Name] LIKE '%Linux%' OR OS.[Name] LIKE '%OS x%') THEN 1 ELSE 0 END) AS Num_Workstations
+						, SUM(CASE WHEN OS.[Name] IS NULL OR (OS.[Name] IS NOT NULL AND OS.[Name] NOT LIKE '%Server%' AND OS.[Name] NOT LIKE '%ESXi%' AND OS.[Name] NOT LIKE '%Windows%' AND OS.[Name] NOT LIKE '%Linux%' AND OS.[Name] NOT LIKE '%OS x%') THEN 1 ELSE 0 END) AS Num_Other_Devices
 					FROM Autotask.TF_511394_WH.dbo.wh_installed_product InstalledProduct
 					LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Account
 						ON Account.account_id = InstalledProduct.account_id
 					LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent
 						ON Parent.account_id = Account.parent_account_id
+					LEFT JOIN Autotask.TF_511394_WH.dbo.wh_device_audit_operating_system OS
+						on OS.device_audit_operating_system_id = InstalledProduct.device_audit_operating_system_id
 					WHERE 1=1
 						AND Account.is_active = 1
 						AND InstalledProduct.is_active = 1
@@ -477,7 +487,7 @@ SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_
 	WHERE 1=1
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
-		AND Board.queue_name LIKE '04%'
+		AND (Board.queue_name LIKE '03%' OR Board.queue_name LIKE '04%')
 	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsByMonth
@@ -510,7 +520,7 @@ SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_
 	WHERE 1=1
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
-		AND (Board.queue_name LIKE '03%' OR Ticket.Project_Id IS NOT NULL)
+		AND (Board.queue_name LIKE '06%' OR Ticket.Project_Id IS NOT NULL)
 	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsByMonth

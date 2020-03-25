@@ -10,10 +10,10 @@ select distinct tab.Name AS Table_Nm
 	----, col.Status
 	--, col.IsNullable as Allow_Null_Ind
 	, 'SELECT top 3 ''' + RTRIM(tab.name) + ''' as Table_Name, * from [' + tab.name + ']'
-	, 'DELETE FROM ' + RTRIM(tab.name)
+	--, 'DELETE FROM ' + RTRIM(tab.name)
 	, 'SELECT  ''' + RTRIM(tab.name) + ''' as Table_Name, count(*) as numrecs from [' + tab.name + '] WITH (NOLOCK)'
 	--	+ case when db_name() like 'MFG%' THEN '  order by progress_recid desc' else '' END as GetRecs
-	--, 'UPDATE ' + tab.name + ' set ' + col.name + ' = 2 where ' + col.name + ' = 46 ' as UpdateRecs
+	, 'UPDATE [' + tab.name + '] set [' + col.name + '] = dateadd(hh, -6, [' + col.name + ']) where 1=1 ' as UpdateRecs
 	FROM sysobjects tab
 	INNER JOIN syscolumns col ON (tab.id = col.id)
 	INNER JOIN systypes typ ON (col.xtype = typ.xtype) 
@@ -23,7 +23,7 @@ select distinct tab.Name AS Table_Nm
 		--and tab.name  like 'vw_%'
 		--and tab.name <> 'whsebin'
 		--AND tab.name like '%programid%'
-		AND col.name like '%import%'
+		AND col.name like '%datetime%'
 	order by 1,2
 
 ----- Find Identity Columns
