@@ -1,14 +1,14 @@
 select distinct tab.Name AS Table_Nm
-	--, col.name AS Column_Nm
-	----, ' = @' + col.name
-	----, ', this.CreateParameter("@' + col.name + '", ' + col.name + ')'
-	----, ', string ' + col.name
-	----, 'txt' + col.name + '.Text = row["' + col.name + '"].ToString();'
-	--, typ.Name AS Column_Type
-	--, COALESCE(col.Prec, 0) as Precision
-	--, COALESCE(col.Scale, 0) as Scale
-	----, col.Status
-	--, col.IsNullable as Allow_Null_Ind
+	, col.name AS Column_Nm
+	--, ' = @' + col.name
+	--, ', this.CreateParameter("@' + col.name + '", ' + col.name + ')'
+	--, ', string ' + col.name
+	--, 'txt' + col.name + '.Text = row["' + col.name + '"].ToString();'
+	, typ.Name AS Column_Type
+	, COALESCE(col.Prec, 0) as Precision
+	, COALESCE(col.Scale, 0) as Scale
+	--, col.Status
+	, col.IsNullable as Allow_Null_Ind
 	, 'SELECT top 3 ''' + RTRIM(tab.name) + ''' as Table_Name, * from [' + tab.name + ']'
 	--, 'DELETE FROM ' + RTRIM(tab.name)
 	, 'SELECT  ''' + RTRIM(tab.name) + ''' as Table_Name, count(*) as numrecs from [' + tab.name + '] WITH (NOLOCK)'
@@ -23,7 +23,7 @@ select distinct tab.Name AS Table_Nm
 		--and tab.name  like 'vw_%'
 		--and tab.name <> 'whsebin'
 		--AND tab.name like '%programid%'
-		AND col.name like '%datetime%'
+		--AND col.name like '%datetime%'
 	order by 1,2
 
 ----- Find Identity Columns
