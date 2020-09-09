@@ -12,5 +12,4 @@ WHERE
 GROUP BY 
       sOBJ.schema_id
       , sOBJ.name
-ORDER BY [TableName]
-GO
+ORDER BY 2

@@ -110,7 +110,7 @@ BEGIN
 		FROM MSP_Dashboard.dbo.CompanyStatsByMonth MRR
 		INNER JOIN (			
 				SELECT Account.Account_Name AS Company_Name
-						, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP', 'CL - Finance') THEN 1.00
+						, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP', 'CL - Finance') OR LEFT(ContactUDF.Contact_Type_stored_value, 2) = 'MK' THEN 1.00
 										WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT30)' THEN 0.50
 										WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT15)' THEN 0.25
 										ELSE 0 END) AS Num_Seats
