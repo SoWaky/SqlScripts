@@ -461,7 +461,7 @@ SELECT Account.Account_Name AS Company_Name,   SUM(SubTime.Hours_Worked) as Num_
 	WHERE 1=1
 		AND Ticket.assigned_resource_id <> 29682923				-- Don't include Onsite Techs
 		AND SubTime.Date_Worked between @StartDate AND @EndDate
-		AND (Board.queue_name LIKE '06%' OR Ticket.Project_Id IS NOT NULL)
+		AND (Board.queue_name LIKE '06%' OR Board.queue_name LIKE '09%' OR Ticket.Project_Id IS NOT NULL)
 	GROUP BY Account.Account_Name
 										
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
