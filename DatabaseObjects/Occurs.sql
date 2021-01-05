@@ -7,7 +7,7 @@ CREATE  FUNCTION [dbo].[Occurs]
 @StringSearched varchar(4000)
 , @SearchExpression varchar(4000)
 )
-RETURNS DATETIME
+RETURNS BIT
 AS
 BEGIN
 	RETURN (LEN(@StringSearched) - LEN(REPLACE(@StringSearched, @SearchExpression, '')))
