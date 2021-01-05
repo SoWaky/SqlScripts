@@ -9,7 +9,7 @@ select distinct tab.Name AS Table_Nm
 	--, COALESCE(col.Scale, 0) as Scale
 	------, col.Status
 	----, col.IsNullable as Allow_Null_Ind
-	, 'SELECT top 30 ''' + RTRIM(tab.name) + ''' as Table_Name, * from [' + s.[name] + '].[' + tab.name + ']'
+	, 'SELECT top 3 ''' + s.[name] + '.' + RTRIM(tab.name) + ''' as Table_Name, * from [' + s.[name] + '].[' + tab.name + ']'
 	--, 'DELETE FROM ' + RTRIM(tab.name)
 	, 'SELECT  ''' + RTRIM(tab.name) + ''' as Table_Name, count(*) as numrecs from [' + s.[name] + '].[' + tab.name + '] WITH (NOLOCK)'
 	--	+ case when db_name() like 'MFG%' THEN '  order by progress_recid desc' else '' END as GetRecs
@@ -35,14 +35,14 @@ select distinct tab.Name AS Table_Nm
 	--left JOIN sysusers s ON tab.uid = s.uid
 	WHERE 1=1
 		AND tab.type IN ('U','V')  -- 'U' for User Table, 'V' for View
-		--and s.[name] like '%pcrc%'
+		--and s.[name] like '%art%'
 		--and tab.name like '%tblvol%'
 		--and (tab.name  like '%tbl_ind%' or tab.name  like '%tbl_house%')
 		and tab.name NOT LIKE '[_][_]%'
 		--and tab.name NOT LIKE '%TBD%'
 		and tab.name <> 'sysdiagrams'
-		--AND tab.name like '%service%'
-		AND col.name like '%blob%'
+		AND tab.name like '%outcome%'
+		--AND col.name like '%ComputerPriority%'
 	order by 1,2
 	
 
