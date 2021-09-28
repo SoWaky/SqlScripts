@@ -1,3 +1,5 @@
+-- drop FUNCTION [dbo].[GetFirstWord]
+
 CREATE FUNCTION [dbo].[GetFirstWord] (@value varchar(max))
 RETURNS varchar(max)
 AS
@@ -10,13 +12,19 @@ BEGIN
 END
 go
 
+-- drop FUNCTION [dbo].[GetSecondWord]
+
 CREATE FUNCTION [dbo].[GetSecondWord] (@value varchar(max))
 RETURNS varchar(max)
 AS
 BEGIN
 	SET @value = LTRIM(RTRIM(@value))
 
-    RETURN LTRIM(SUBSTRING(@value,CHARINDEX(' ',@value), CHARINDEX(' ',LTRIM(SUBSTRING(@value,CHARINDEX(' ',@value),LEN(@value)-CHARINDEX(' ',@value)))) ))
+	declare @Length int
+	SET @Length = CHARINDEX(' ', LTRIM(SUBSTRING(@value,CHARINDEX(' ',@value), LEN(@value)-CHARINDEX(' ',@value))))
+	IF @Length = 0
+		SET @Length = LEN(@Value)
+
+    RETURN LTRIM(SUBSTRING(@value, CHARINDEX(' ', @value), @Length))
 END
 go
-
