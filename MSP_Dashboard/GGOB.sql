@@ -17,6 +17,32 @@ exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,9
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,10
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,11
 exec sp_UpdateMspDashboardCompanyStatsByMonth 2019,12
+
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,1
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,2
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,3
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,4
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,5
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,6
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,7
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,8
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,9
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,10
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,11
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2020,12
+
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,1
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,2
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,3
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,4
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,5
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,6
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,7
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,8
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,9
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,10
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,11
+exec sp_UpdateMspDashboardCompanyStatsByMonth 2021,12
 -----------------------------------------------------------------------
 
 begin tran

@@ -81,10 +81,10 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (			
 			SELECT Account.Account_Name AS Company_Name
-					, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value IN ('CL - Decision Maker','CL - End User (FT)','CL - POC 1','CL - POC 2','CL - VIP', 'CL - Finance') THEN 1.00
-									WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT30)' THEN 0.50
-									WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT15)' THEN 0.25
-									ELSE 0 END) AS Num_Seats
+					, SUM(CASE WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT30)' THEN 0.50
+										WHEN ContactUDF.Contact_Type_stored_value = 'CL - End User (PT15)' THEN 0.25
+										WHEN ContactUDF.Contact_Type_stored_value LIKE ('CL%') OR LEFT(ContactUDF.Contact_Type_stored_value, 2) = 'MK' THEN 1.00										
+										ELSE 0 END) AS Num_Seats
 				FROM Autotask.TF_511394_WH.dbo.wh_account Account
 				LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent
 					ON Parent.account_id = Account.parent_account_id
@@ -132,14 +132,21 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 ---------------------------------------------------
 ---- MRR $, ORR $
 UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
-	SET MRR_Amount = CASE WHEN Company_Type = '10 Client - Managed Services' THEN Upd.Contract_Price ELSE 0 END
-			, ORR_Amount = CASE WHEN Company_Type = '15 Client - Modular Services' THEN Upd.Contract_Price ELSE 0 END
-			, MRR_Contract_Start_Date = Upd.Start_Date
-			, MRR_Contract_End_Date = Upd.End_Date
-			, Update_Date_Time = GETDATE()
-	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
+	SET MRR_Amount = Upd.MRR_Amount
+		, ORR_Amount = Upd.ORR_Amount
+		, NRR_Amount = Upd.NRR_Amount
+		, MRR_Contract_Start_Date = Upd.Start_Date
+		, MRR_Contract_End_Date = Upd.End_Date
+		, Update_Date_Time = GETDATE()
+	FROM MSP_Dashboard.dbo.CompanyStatsByMonth MRR
 	INNER JOIN (
-		SELECT Account.Account_Name AS Company_Name, C.start_date, C.end_date, SUM(P.Contract_Period_Price) AS Contract_Price
+		SELECT Account.Account_Name AS Company_Name
+				, SUM(CASE WHEN LEFT(category.contract_category_name, 10) = 'Managed Se' THEN P.Contract_Period_Price ELSE 0 END) AS MRR_Amount
+				, SUM(CASE WHEN LEFT(category.contract_category_name, 3) = 'ORR' THEN P.Contract_Period_Price ELSE 0 END) AS ORR_Amount
+				, SUM(CASE WHEN LEFT(category.contract_category_name, 10) <> 'Managed Se' 
+							AND LEFT(category.contract_category_name, 3) <> 'ORR'
+							THEN P.Contract_Period_Price ELSE 0 END) AS NRR_Amount
+				, MIN(C.start_date) AS start_date, MAX(C.end_date) end_date
 			FROM Autotask.TF_511394_WH.dbo.wh_contract C WITH (NOLOCK)
 			INNER JOIN Autotask.TF_511394_WH.dbo.wh_contract_service CS WITH (NOLOCK)
 				ON CS.contract_id = C.contract_id
@@ -159,8 +166,10 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 				AND S.Active = 1
 				AND @EndDate BETWEEN C.start_date and C.end_date
 				AND @EndDate BETWEEN p.contract_period_date and p.contract_period_end_date
-				AND LEFT(category.contract_category_name, 16) in ('Managed Services', 'Other Recurring ')
-			GROUP BY Account.Account_Name, C.start_date, C.end_date
+				AND (LEFT(category.contract_category_name, 10) in ('Managed Se', 'Fixed Pric', 'Time & Mat')
+					OR LEFT(category.contract_category_name, 3) IN ('NRR','ORR')
+					)
+			GROUP BY Account.Account_Name
 	) Upd ON Upd.Company_Name = MRR.Company_Name
 
 
