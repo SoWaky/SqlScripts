@@ -138,7 +138,7 @@ UPDATE MSP_Dashboard.dbo.CompanyStatsLast30Days
 		, MRR_Contract_Start_Date = Upd.Start_Date
 		, MRR_Contract_End_Date = Upd.End_Date
 		, Update_Date_Time = GETDATE()
-	FROM MSP_Dashboard.dbo.CompanyStatsByMonth MRR
+	FROM MSP_Dashboard.dbo.CompanyStatsLast30Days MRR
 	INNER JOIN (
 		SELECT Account.Account_Name AS Company_Name
 				, SUM(CASE WHEN LEFT(category.contract_category_name, 10) = 'Managed Se' THEN P.Contract_Period_Price ELSE 0 END) AS MRR_Amount
