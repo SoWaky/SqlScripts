@@ -1,2 +1,0 @@
-# SqlScripts
-SQL Server Scripts

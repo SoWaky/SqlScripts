@@ -15,6 +15,14 @@ alter role db_owner add member development
 GO
 
 ---------------------------------------------------------------------------
+-- Create a special SQL Role to allow users to execute stored procedures without giving them DB_Owner
+
+CREATE ROLE db_executor
+GRANT EXECUTE TO db_executor
+alter role db_executor add member development
+
+
+---------------------------------------------------------------------------
 -- Create remote connections from Loaves to Cares and OFC databases
 
 -- Step 1 - Create USR_CROSS_DBMS user. Execute on all databases 
