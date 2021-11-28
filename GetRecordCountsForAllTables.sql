@@ -9,6 +9,7 @@ WHERE
       sOBJ.type = 'U'
       AND sOBJ.is_ms_shipped = 0x0
       AND index_id < 2 -- 0:Heap, 1:Clustered
+	  and SCHEMA_NAME(sOBJ.schema_id) = 'dbo'
 GROUP BY 
       sOBJ.schema_id
       , sOBJ.name
