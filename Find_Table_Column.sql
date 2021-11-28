@@ -7,7 +7,7 @@ select distinct tab.Name AS Table_Nm
 	--, typ.Name AS Column_Type
 	--, COALESCE(col.Prec, 0) as Precision
 	--, COALESCE(col.Scale, 0) as Scale
-	------, col.Status
+	----, col.Status
 	----, col.IsNullable as Allow_Null_Ind
 	, 'SELECT top 30 ''' + s.[name] + '.' + RTRIM(tab.name) + ''' as Table_Name, * from [' + s.[name] + '].[' + tab.name + '] ORDER BY 2 DESC' AS SelectTop
 	--, 'truncate table [' + s.[name] + '].[' + RTRIM(tab.name) + ']' AS DeleteAll
