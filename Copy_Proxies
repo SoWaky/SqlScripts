@@ -1,0 +1,49 @@
+-- This script generates commands to copy SQL Agent - Proxies from one server to another
+-- Operators and Proxies must be copied before Jobs can be copied
+
+USE msdb
+GO
+
+CREATE TABLE #Info ([proxy_id] INT, [name] SYSNAME, [credential_identity] SYSNAME, [enabled] TINYINT, [description] NVARCHAR(1024), [user_sid] VARBINARY(85), [credential_id] INT, [credential_identity_exists] INT)
+
+INSERT INTO #Info 
+	EXEC sp_help_proxy
+
+CREATE TABLE #Info2([subsystem_id] INT, [subsystem_name] SYSNAME, [proxy_id] INT, [proxy_name] SYSNAME)
+
+INSERT INTO #Info2 
+	EXEC sp_enum_proxy_for_subsystem
+
+
+select 1,'USE msdb'
+UNION
+
+select 2,'GO'
+UNION
+
+SELECT 3,'CREATE CREDENTIAL ['+[name]+'] WITH IDENTITY='''+[credential_identity]+''',SECRET=''G3$1o)lkJ8HNd!'''
+	FROM [sys].[credentials]
+
+UNION
+
+select 4,''
+UNION
+
+SELECT 5,'EXEC dbo.sp_add_proxy @proxy_name='''+[i].[name]+''',@enabled='+CAST([enabled] AS VARCHAR)+',@description='+(CASE WHEN [description] IS NULL THEN 'NULL' ELSE ''''+[description]+'''' END)+',@credential_name='''+[c].[name]+''''
+	FROM #Info [i]
+	INNER JOIN [sys].[credentials] [c] ON [c].[credential_id] = [i].[credential_id]
+
+UNION
+
+select 6,''
+UNION
+
+select 7,'declare @subsystemid int'
+union
+
+SELECT 8,'SELECT @subsystemid = subsystem_id FROM msdb.dbo.syssubsystems WHERE subsystem = ''' + subsystem_name
+		+ '''; EXEC dbo.sp_grant_proxy_to_subsystem @proxy_name=N'''+[proxy_name]+''',@subsystem_id = @subsystemid;'
+	FROM #Info2
+
+DROP TABLE #Info
+DROP TABLE #Info2
