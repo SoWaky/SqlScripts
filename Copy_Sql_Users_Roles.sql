@@ -1,9 +1,4 @@
 -- Scripting Out the Logins, Server Role Assignments, and Server Permissions
--- ************************************************************************************************************************
--- CRITICAL NOTE: You’ll need to change your results to display more characters in the query result.
--- Under Tools –> Options –> Query Results –> SQL Server –> Results to Text to increase the maximum number of characters 
--- returned to 8192 the maximum or to a number high enough to prevent the results being truncated.
--- ************************************************************************************************************************
 SET NOCOUNT ON
 -- Scripting Out the Logins To Be Created
 SELECT 'IF (SUSER_ID('+QUOTENAME(SP.name,'''')+') IS NULL) BEGIN CREATE LOGIN ' +QUOTENAME(SP.name)+

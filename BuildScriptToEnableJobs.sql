@@ -9,7 +9,11 @@ go
 -- Run this query first
 
 SELECT distinct sj.name AS jobName, ss.enabled, ss.name AS scheduleName--, sja.next_scheduled_run_date, sjs.schedule_id
-	, 'SELECT distinct ''EXEC msdb.dbo.sp_update_schedule @schedule_id = '''''' + cast(ss.schedule_id as varchar(100)) + '''''', @enabled = 1; '' as sqlex FROM msdb.dbo.sysjobs sj INNER JOIN msdb.dbo.sysjobactivity sja ON sja.job_id = sj.job_id INNER JOIN msdb.dbo.sysjobschedules sjs ON sjs.job_id = sja.job_id INNER JOIN msdb.dbo.sysschedules ss ON ss.schedule_id = sjs.schedule_id where sj.name = ''' + sj.name + ''' and ss.name = ''' + ss.name + '''  UNION ' as SqlEx
+	, 'SELECT @ScheduleId = ss.schedule_id  ' 
+		+ ' FROM msdb.dbo.sysjobs sj INNER JOIN msdb.dbo.sysjobactivity sja ON sja.job_id = sj.job_id INNER JOIN msdb.dbo.sysjobschedules sjs ON sjs.job_id = sja.job_id INNER JOIN msdb.dbo.sysschedules ss ON ss.schedule_id = sjs.schedule_id ' 
+		+ ' WHERE sj.Name = ''' + sj.Name + ''' AND ss.name = ''' + ss.name + '''; ' 
+		--+ ' PRINT @ScheduleId'
+		+ ' EXEC msdb.dbo.sp_update_schedule @schedule_id = @ScheduleId, @enabled = 1; ' as sqlex
 FROM msdb.dbo.sysjobs sj
 INNER JOIN msdb.dbo.sysjobactivity sja ON sja.job_id = sj.job_id
 INNER JOIN msdb.dbo.sysjobschedules sjs ON sjs.job_id = sja.job_id
@@ -18,11 +22,12 @@ where ss.enabled = 1
 order by 2,1,3
 
 
--- 1. Run the above query
--- 2. Copy the SqlEx column from the results and paste them into a new Query window
--- 3. Delete the last 'UNION' statement at the end of the script
--- 4. Run that script.  The commands that you pasted below to generate all of the SQL commands that will re-enable every job in the Results window
--- 5. Copy the SqlEx column from that Results window and save them in a SQL script file.
---	 It will have a command for re-enabling every job schedule for when you are ready to re-enable all schedules
+-- Copy the sqlex column from the results for that query and paste them below the DECLARE statement below
+-- then move all that code to a SQL script and save them for when you are ready to re-enable all schedules
 
+USE msdb
+go
 
+DECLARE @ScheduleId int
+
+-- paste here --
