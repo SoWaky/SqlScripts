@@ -1,3 +1,7 @@
+IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'FormatPhone') AND xtype IN (N'FN', N'IF', N'TF'))
+    DROP FUNCTION dbo.FormatPhone
+GO
+
 CREATE FUNCTION dbo.FormatPhone
 (@PhoneNumber VARCHAR(256))
 RETURNS VARCHAR(256)
@@ -14,6 +18,7 @@ SET @PhoneNumber = case when len(@PhoneNumber) < 7 then @PhoneNumber
 						when len(@PhoneNumber) between 8 and 10 then left(@PhoneNumber,3) + '-' + SUBSTRING(@PhoneNumber, 4, 3) + '-' + SUBSTRING(@PhoneNumber, 7, 4)
 						else left(@PhoneNumber,3) + '-' + SUBSTRING(@PhoneNumber, 4, 3) + '-' + SUBSTRING(@PhoneNumber, 7, 4) + ' x' + substring(@PhoneNumber, 11, 10) 
 						end
+IF @PhoneNumber = '0' SET @PhoneNumber = ''
 
 RETURN @PhoneNumber
 END

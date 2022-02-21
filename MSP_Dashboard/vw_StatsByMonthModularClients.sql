@@ -1,4 +1,4 @@
--- SELECT * FROM vw_StatsByMonth
+-- SELECT * FROM vw_StatsByMonthModularClients
 
 ------------------------------------------------------------
 -- The vw_StatsByMonth View includes all fields from the CompanyStatsByMonth table, except for the Company fields
@@ -47,8 +47,9 @@ SELECT StatsYear, StatsMonth
 		, CAST(CASE WHEN SUM(Num_Seats) > 0 THEN (cast(SUM(Num_Reactive_Hours) AS decimal(20,2)) / cast(SUM(Num_Seats) AS decimal(20,2))) ELSE 0 END AS decimal(20,2)) AS Avg_Hours_Per_Seat	-- RHSM
 		, CAST(CASE WHEN SUM(Num_Reactive_Hours) > 0 THEN (SUM(CASE WHEN MRR_Amount > 0 THEN MRR_Amount ELSE ORR_Amount END) / cast(SUM(Num_Reactive_Hours) as decimal(20,2))) ELSE 0 END as decimal(20,2)) AS Avg_Revenue_Per_Hour	-- MRR_Run_Rate
 		, CAST(CASE WHEN SUM(Num_Reactive_Tickets_Closed) > 0 THEN (cast(SUM(Num_Reactive_Tickets_Resolved_On_Time) as decimal(20,2)) / cast(SUM(Num_Reactive_Tickets_Closed) as decimal(20,2))) ELSE 1.00 END AS decimal(20,2)) AS SLA_Met_Pct	-- SLA Met %
+		, DateFromParts(StatsYear, StatsMonth, 1) AS StatsDate
 	FROM MSP_Dashboard.dbo.CompanyStatsByMonth ms WITH (NOLOCK)
-	WHERE Company_Type = '15 Client - Modular Services'
+	WHERE Company_Type = '15 Client - House Account'
 	GROUP BY StatsYear, StatsMonth
 
 GO

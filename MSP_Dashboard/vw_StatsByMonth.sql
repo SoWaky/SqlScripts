@@ -16,6 +16,7 @@ GO
 CREATE VIEW dbo.vw_StatsByMonth
 AS 
 SELECT StatsYear, StatsMonth
+		, DateFromParts(StatsYear, StatsMonth, 1) AS StatsDate
 		, COUNT(*) AS Num_Clients
 		, SUM(Num_Seats) AS Num_Seats
 		, SUM(Num_Endpoints) AS Num_Endpoints

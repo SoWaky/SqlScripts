@@ -1,5 +1,5 @@
 -- TF_511394_WH database
--- select * from HoursByWeek where full_name = 'Ortega, Omar'
+-- select * from HoursByWeek order by full_name 
 -- exec sp_UpdateHours
 
 USE MSP_Dashboard
@@ -21,26 +21,28 @@ SET @StartDate = DATEADD(week, -3, @StartDate)	-- Go back 3 weeks since people a
 PRINT @StartDate
 
 -- DEBUG for Reload
---SET @StartDate = '07/01/2018'
+--SET @StartDate = '01/01/2019'
 
 -- Delete the current week and reload it
 
 DELETE FROM HoursByWeek	
 	WHERE FirstDayOfWeek >= @StartDate
 
-INSERT INTO HoursByWeek (FirstDayOfWeek, Full_Name, Task_Number, Board, WorkRole, HoursWorked)
+INSERT INTO HoursByWeek (FirstDayOfWeek, Full_Name, Task_Number, Board, WorkRole, WorkType, HoursWorked)
 	SELECT DATEADD(day, -1, DATEADD(week, datepart(week, s.date_worked) - 1, DATEADD(yy, datepart(year, s.date_worked) - 1900, 0))) as FirstDayOfWeek
 		, u.Full_Name
 		, task.Task_Number
 		, COALESCE(Board.queue_name, project.Project_Name, task.Task_Name) as Board
-		, CASE WHEN Board.queue_name IN ('00 RMM Alerts','01.1 Support Triage','01.2 Support Tier 2','01.3 Support Tier 3') THEN 'Reactive'
-				WHEN Board.queue_name IN ('03 Recurring Client Meetings', '04 Network Administration') THEN 'Network Administration'
-				WHEN Board.queue_name = '02 vCIO' THEN 'vCIO'
-				WHEN Board.queue_name = '05 Protective Services' THEN 'Protective Services'
-				WHEN Board.queue_name = '08 Quotes' THEN 'Design Desk'
-				WHEN Board.queue_name = '10 Development' OR (u.Full_Name = 'Price, Matthew' and wh_task_type.task_type_name ='Project Task') THEN 'Development'
-				WHEN wh_task_type.task_type_name = 'Project Task' THEN 'Professional Services'
+		, CASE WHEN LEFT(Board.queue_name, 2) = '00' OR LEFT(Board.queue_name, 2) = '01' THEN 'Reactive'
+				WHEN LEFT(Board.queue_name, 2) = '03' OR LEFT(Board.queue_name, 2) = '04' THEN 'Network Administration'
+				WHEN LEFT(Board.queue_name, 2) = '02' THEN 'vCIO'
+				WHEN LEFT(Board.queue_name, 2) = '05' THEN 'Protective Services'
+				WHEN LEFT(Board.queue_name, 2) = '08' THEN 'Design Desk'
+				WHEN LEFT(Board.queue_name, 2) = '10' OR (u.Full_Name in ('Price, Matthew', 'Antoon, Chris', 'Finnerty, Annie', 'Errichiello, Frank', 'Rudnick, Matthew') and wh_task_type.task_type_name ='Project Task') THEN 'Development'
+				WHEN wh_task_type.task_type_name = 'Project Task' or LEFT(Board.queue_name, 2) = '06' THEN 'Professional Services'
+				WHEN LEFT(Board.queue_name, 2) = '11' THEN 'Finance'
 				ELSE 'INTERNAL' END as WorkRole
+			, allocation.allocation_code_name as WorkType
 			, SUM(s.hours_worked) AS HoursWorked	
 		from Autotask.TF_511394_WH.dbo.wh_time_item t
 		inner join Autotask.TF_511394_WH.dbo.wh_time_subitem s
@@ -55,6 +57,8 @@ INSERT INTO HoursByWeek (FirstDayOfWeek, Full_Name, Task_Number, Board, WorkRole
 			on wh_task_type.task_type_id = task.task_type_id
 		left join Autotask.TF_511394_WH.dbo.wh_project project
 			on project.project_id = task.project_id
+		left join Autotask.TF_511394_WH.dbo.[wh_allocation_code] allocation
+			on allocation.allocation_code_id = s.allocation_code_id
 		where 1=1
 			and s.date_worked >=  @StartDate
 			and u.full_name <> 'Valentine, Ross'
@@ -62,14 +66,16 @@ INSERT INTO HoursByWeek (FirstDayOfWeek, Full_Name, Task_Number, Board, WorkRole
 		, u.Full_Name
 		, task.Task_Number
 		, COALESCE(Board.queue_name, project.Project_Name, task.Task_Name)
-		, CASE WHEN Board.queue_name IN ('00 RMM Alerts','01.1 Support Triage','01.2 Support Tier 2','01.3 Support Tier 3') THEN 'Reactive'
-				WHEN Board.queue_name IN ('03 Recurring Client Meetings', '04 Network Administration') THEN 'Network Administration'
-				WHEN Board.queue_name = '02 vCIO' THEN 'vCIO'
-				WHEN Board.queue_name = '05 Protective Services' THEN 'Protective Services'
-				WHEN Board.queue_name = '08 Quotes' THEN 'Design Desk'
-				WHEN Board.queue_name = '10 Development' OR (u.Full_Name = 'Price, Matthew' and wh_task_type.task_type_name ='Project Task') THEN 'Development'
-				WHEN wh_task_type.task_type_name = 'Project Task' THEN 'Professional Services'
-				ELSE 'INTERNAL' END 
+		, CASE WHEN LEFT(Board.queue_name, 2) = '00' OR LEFT(Board.queue_name, 2) = '01' THEN 'Reactive'
+				WHEN LEFT(Board.queue_name, 2) = '03' OR LEFT(Board.queue_name, 2) = '04' THEN 'Network Administration'
+				WHEN LEFT(Board.queue_name, 2) = '02' THEN 'vCIO'
+				WHEN LEFT(Board.queue_name, 2) = '05' THEN 'Protective Services'
+				WHEN LEFT(Board.queue_name, 2) = '08' THEN 'Design Desk'
+				WHEN LEFT(Board.queue_name, 2) = '10' OR (u.Full_Name in ('Price, Matthew', 'Antoon, Chris', 'Finnerty, Annie', 'Errichiello, Frank', 'Rudnick, Matthew') and wh_task_type.task_type_name ='Project Task') THEN 'Development'
+				WHEN wh_task_type.task_type_name = 'Project Task' or LEFT(Board.queue_name, 2) = '06' THEN 'Professional Services'
+				WHEN LEFT(Board.queue_name, 2) = '11' THEN 'Finance'
+				ELSE 'INTERNAL' END
+		, allocation.allocation_code_name
 		ORDER by 1,2
 
 -- SELECT * FROM HoursByWeek order by 2,3

@@ -48,6 +48,30 @@ PRINT @EndDate
 
 DELETE FROM MSP_Dashboard.dbo.CompanyStatsLast30Days
 
+-- Update Companies
+
+INSERT INTO MSP_Dashboard.dbo.Company (Company_Type, Company_Name, ActiveInd, AddDateTime)		
+	SELECT DISTINCT wh_key_account_icon.key_account_icon_name AS Company_Type, Account.Account_Name AS Company_Name, 1, GETDATE()
+		FROM Autotask.TF_511394_WH.dbo.wh_account Account
+		LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account_udf AccountUDf
+			ON Account.account_id = AccountUDf.account_id
+		LEFT JOIN Autotask.TF_511394_WH.dbo.wh_account Parent
+			ON Parent.account_id = Account.parent_account_id
+		INNER JOIN Autotask.TF_511394_WH.dbo.wh_key_account_icon wh_key_account_icon
+			ON wh_key_account_icon.key_account_icon_id = Account.key_account_icon_id
+		WHERE 1=1
+			and Account.is_active = 1
+			and Account.key_account_icon_id in (201, 200, 204)	-- 10, 15, 95 clients
+			and not exists (select * from MSP_Dashboard.dbo.Company c where c.Company_Name = Account.Account_Name)
+
+UPDATE MSP_Dashboard.dbo.Company
+	SET ActiveInd = 0, UpdateDateTime = GETDATE()
+	FROM MSP_Dashboard.dbo.Company c
+	INNER JOIN Autotask.TF_511394_WH.dbo.wh_account Account
+		ON Account.Account_Name = c.Company_Name
+	WHERE c.ActiveInd = 1
+		AND Account.is_active = 0
+
 ---------------------------------------------------
 -- Load the table with all active companies that have a Managed Services agreement
 PRINT 'Inserting records for the month'
