@@ -19,6 +19,7 @@ select distinct tab.Name AS Table_Nm
 	--,'ALTER SCHEMA ClientDb TRANSFER [' + s.[name] + '].[' + tab.name + ']'
 	--, './generatecontrollers.ps1 "' + tab.name + '"'
 	--, 'services.AddScoped<' + tab.name + 'Controller>();'
+	, ', ' + col.name + ' = i.' + col.name as SetAllFields
 	, s.[name] as [Schema]	
 		, ISNULL(SUBSTRING(
 					(
@@ -45,8 +46,8 @@ select distinct tab.Name AS Table_Nm
 		--and tab.name NOT LIKE '%TBD%'
 		and tab.name NOT IN ('sysdiagrams', 'database_firewall_rules')
 		--and typ.Name = 'datetime'
-		--AND tab.name like '%repair%'
-		AND col.name like '%maxorder%'
+		AND tab.name like 'location'
+		--AND col.name like '%maxorder%'
 	order by s.[name],1,2
 	
 
